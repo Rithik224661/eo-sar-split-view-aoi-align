@@ -1,8 +1,9 @@
 
-import type { AOI, CreateJobPayload, Job } from '../types';
+import type { CreateJobPayload, Job } from '../types';
 import { JobStatusEnum } from '../types';
 
-const jobs: { [key: string]: Job & { _progress: number } } = {};
+const jobs: { [key: string]: Job & { _progress: number; imageAId: string; imageBId: string; } } = {};
+const uploadedFiles = new Map<string, File>();
 
 // Simulate file upload, returning a unique ID
 export const uploadImage = (file: File): Promise<string> => {
@@ -10,6 +11,7 @@ export const uploadImage = (file: File): Promise<string> => {
   return new Promise(resolve => {
     setTimeout(() => {
       const imageId = `img_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      uploadedFiles.set(imageId, file);
       resolve(imageId);
     }, 500 + Math.random() * 500);
   });
@@ -27,9 +29,11 @@ export const createJob = (payload: CreateJobPayload): Promise<{ jobId: string }>
         outputs: null,
         error: null,
         _progress: 0,
+        imageAId: payload.imageAId,
+        imageBId: payload.imageBId,
       };
       // Start the job simulation process
-      simulateJobProgress(jobId, payload);
+      simulateJobProgress(jobId);
       resolve({ jobId });
     }, 1000);
   });
@@ -54,7 +58,7 @@ export const getJobStatus = (jobId: string): Promise<Partial<Job>> => {
 };
 
 // Internal function to simulate job progress
-const simulateJobProgress = (jobId: string, payload: CreateJobPayload) => {
+const simulateJobProgress = (jobId: string) => {
   const job = jobs[jobId];
   if (!job) return;
 
@@ -69,13 +73,13 @@ const simulateJobProgress = (jobId: string, payload: CreateJobPayload) => {
     if (isSuccess) {
       job.status = JobStatusEnum.DONE;
       // In a real app, these URLs would point to the processed GeoTIFFs.
-      // Here, we mock them. For demonstration, we'll return object URLs
-      // from the original files if they exist, to allow re-rendering.
-      // This part is tricky without access to the original file objects here.
-      // For simplicity, we'll return placeholder URLs.
+      // Here, we create object URLs from the original uploaded files to simulate this.
+      const fileA = uploadedFiles.get(job.imageAId);
+      const fileB = uploadedFiles.get(job.imageBId);
+      
       job.outputs = {
-        imageAUrl: 'processed_A.tif', // Placeholder
-        imageBUrl: 'processed_B.tif', // Placeholder
+        imageAUrl: fileA ? URL.createObjectURL(fileA) : '',
+        imageBUrl: fileB ? URL.createObjectURL(fileB) : '',
       };
     } else {
       job.status = JobStatusEnum.ERROR;

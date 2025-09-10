@@ -26,6 +26,7 @@ interface MapContainerProps {
   showProcessed: boolean;
   onAoiDrawn: (aoi: AOI) => void;
   onAoiReset: () => void;
+  resetAoiTrigger: number;
 }
 
 const MapContainer: React.FC<MapContainerProps> = ({ 
@@ -34,7 +35,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
   processedOutputs,
   showProcessed,
   onAoiDrawn,
-  onAoiReset
+  onAoiReset,
+  resetAoiTrigger
 }) => {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -43,6 +45,12 @@ const MapContainer: React.FC<MapContainerProps> = ({
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
   const layerARef = useRef<any>(null);
   const layerBRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (resetAoiTrigger > 0 && drawnItemsRef.current) {
+      drawnItemsRef.current.clearLayers();
+    }
+  }, [resetAoiTrigger]);
 
   useEffect(() => {
     if (mapContainerRef.current && !mapRef.current) {
@@ -119,15 +127,11 @@ const MapContainer: React.FC<MapContainerProps> = ({
       try {
         let arrayBuffer: ArrayBuffer;
         if (typeof fileOrUrl === 'string') {
-          // This is a placeholder for fetching from a real URL
-          // In this mock setup, we can't fetch `processed_A.tif`
-          // So we will use the original files if available to demonstrate rendering
-          const fileToUse = isSideA ? imageAFile : imageBFile;
-          if (!fileToUse) {
-            console.error("No file available to render for processed output.");
-            return;
+          const response = await fetch(fileOrUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch raster data from URL: ${response.statusText}`);
           }
-          arrayBuffer = await fileToUse.arrayBuffer();
+          arrayBuffer = await response.arrayBuffer();
         } else {
           arrayBuffer = await fileOrUrl.arrayBuffer();
         }
@@ -186,10 +190,15 @@ const MapContainer: React.FC<MapContainerProps> = ({
 
     // Cleanup
     return () => {
-        // The map instance should persist, but we could clean up layers
+        // Revoke Object URLs to prevent memory leaks
+        if (processedOutputs?.imageAUrl && processedOutputs.imageAUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(processedOutputs.imageAUrl);
+        }
+        if (processedOutputs?.imageBUrl && processedOutputs.imageBUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(processedOutputs.imageBUrl);
+        }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageAFile, imageBFile, processedOutputs, showProcessed]);
+  }, [imageAFile, imageBFile, processedOutputs, showProcessed, onAoiDrawn, onAoiReset]);
 
 
   return <div ref={mapContainerRef} className="w-full h-full" />;

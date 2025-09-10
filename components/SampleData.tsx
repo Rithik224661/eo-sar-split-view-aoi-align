@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import type { FileInfo, ToastMessage } from '../types';
 
-const SAMPLE_A_URL = 'https://geotiffjs.github.io/geotiff.js/examples/naip.tiff';
-const SAMPLE_A_NAME = 'naip_sample.tiff';
+// Previous URLs were blocked by CORS policy. These new URLs from osgeo.org are configured with
+// Access-Control-Allow-Origin: * and can be fetched by the browser.
+const SAMPLE_A_URL = 'https://download.osgeo.org/geotiff/samples/cog/cog.tif';
+const SAMPLE_A_NAME = 'cog_sample.tif';
 
-const SAMPLE_B_URL = 'https://geotiffjs.github.io/geotiff.js/examples/gdal_pan.tif';
-const SAMPLE_B_NAME = 'gdal_pan_sample.tif';
+const SAMPLE_B_URL = 'https://download.osgeo.org/geotiff/samples/cog/overviews.tif';
+const SAMPLE_B_NAME = 'overviews_sample.tif';
 
 
 const formatBytes = (bytes: number, decimals = 2) => {
@@ -38,9 +39,9 @@ const SampleData: React.FC<SampleDataProps> = ({ setImageA, setImageB, disabled,
     setLoading(true);
     setToast({ type: 'info', message: `Downloading ${name}...`});
     try {
-      const response = await fetch(url, { mode: 'cors' });
+      const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Failed to fetch sample image: ${response.statusText}`);
+        throw new Error(`Failed to fetch sample image: ${response.statusText} (status: ${response.status})`);
       }
       const blob = await response.blob();
       const file = new File([blob], name, { type: 'image/tiff' });
@@ -50,11 +51,12 @@ const SampleData: React.FC<SampleDataProps> = ({ setImageA, setImageB, disabled,
         name: file.name,
         size: formatBytes(file.size),
       });
+      setToast({ type: 'success', message: `${name} loaded successfully.`});
 
     } catch (error) {
       console.error(error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setToast({ type: 'error', message: `Could not load sample: ${errorMessage}` });
+      setToast({ type: 'error', message: `Could not load sample: ${errorMessage}. This is likely a network or CORS issue.` });
     } finally {
       setLoading(false);
     }

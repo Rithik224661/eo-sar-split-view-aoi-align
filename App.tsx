@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import type { FileInfo, AOI, Job, JobStatus, ToastMessage } from './types';
+import React, { useState, useCallback } from 'react';
+import type { FileInfo, AOI, Job, ToastMessage } from './types';
 import { JobStatusEnum } from './types';
 import UploadPanel from './components/UploadPanel';
 import SampleData from './components/SampleData';
@@ -17,6 +17,7 @@ export default function App() {
   const [showProcessed, setShowProcessed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
+  const [resetAoiTrigger, setResetAoiTrigger] = useState(0);
 
   const pollJobStatus = useCallback(async (jobId: string) => {
     const jobStatusInterval = setInterval(async () => {
@@ -82,6 +83,11 @@ export default function App() {
     setAoi(null);
   }, []);
 
+  const handleAoiResetClick = () => {
+    setAoi(null);
+    setResetAoiTrigger(c => c + 1); // Trigger map to clear drawing
+  };
+
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 font-sans">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -107,7 +113,14 @@ export default function App() {
         />
         
         <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-          <h3 className="font-semibold mb-2 text-lg">Area of Interest (AOI)</h3>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold text-lg">Area of Interest (AOI)</h3>
+            {aoi && (
+              <button onClick={handleAoiResetClick} className="text-xs bg-gray-600 hover:bg-red-500/50 text-red-300 font-semibold py-1 px-2 rounded-md transition-colors">
+                Reset
+              </button>
+            )}
+          </div>
           {aoi ? (
             <div className="text-sm space-y-1 text-gray-300">
               <p>N: <span className="font-mono">{aoi.north.toFixed(4)}</span>, S: <span className="font-mono">{aoi.south.toFixed(4)}</span></p>
@@ -160,6 +173,7 @@ export default function App() {
           showProcessed={showProcessed}
           onAoiDrawn={setAoi}
           onAoiReset={handleAoiReset}
+          resetAoiTrigger={resetAoiTrigger}
           key={`${imageA?.file?.name}-${imageB?.file?.name}-${job?.jobId}-${showProcessed}`}
         />
       </main>
