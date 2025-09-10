@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EO/SAR Split-View Map</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet CSS and JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    
+  <!-- Leaflet Side-by-Side Plugin JS -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.1.0/dist/leaflet-side-by-side.min.js"></script>
+
+  <!-- Leaflet.draw CSS and JS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  
+  <!-- GeoTIFF and Georaster parsing libraries -->
+  <script src="https://unpkg.com/geotiff@2.1.1/dist-browser/geotiff.js"></script>
+  <script src="https://unpkg.com/georaster"></script>
+  <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+  
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "leaflet-draw": "https://aistudiocdn.com/leaflet-draw@^1.0.4",
+    "leaflet-draw/": "https://aistudiocdn.com/leaflet-draw@^1.0.4/",
+    "leaflet/": "https://aistudiocdn.com/leaflet@^1.9.4/",
+    "leaflet": "https://aistudiocdn.com/leaflet@^1.9.4",
+    "leaflet.fullscreen": "https://aistudiocdn.com/leaflet.fullscreen@^4.0.0",
+    "leaflet.fullscreen/": "https://aistudiocdn.com/leaflet.fullscreen@^4.0.0/",
+    "leaflet-side-by-side": "https://aistudiocdn.com/leaflet-side-by-side@^2.2.0"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

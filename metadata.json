@@ -1,0 +1,5 @@
+{
+  "name": "EO/SAR Split-View Map with AOI Clip & Align",
+  "description": "An application to upload, preview, and process two GeoTIFF images. Users can draw an Area of Interest (AOI) on a split-view map, trigger a backend processing job to clip and align the images, and then visualize the results.",
+  "requestFramePermissions": []
+}
